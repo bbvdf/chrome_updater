@@ -12,14 +12,18 @@ jobs:
       matrix:
         go-version: ['stable']
         os: [ubuntu-latest]
-        arch: ['amd64'] # 🎯 这里修改为只保留 amd64 (x64)
+        arch: ['amd64'] # 只编译 x64
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: WillAbides/setup-go-faster@v1.14.0
+
+      # 🎯 修复这里：换成官方的 setup-go，彻底解决报错
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
+
       - name: Setup Env
         run: >-
           sudo apt-get update &&
@@ -46,7 +50,7 @@ jobs:
             unzip ${GITHUB_WORKSPACE}/fyne-cross/dist/windows-${{ matrix.arch }}/chrome_updater.exe.zip -d ${GITHUB_WORKSPACE}/fyne-cross/dist/windows-${{ matrix.arch }}
             mv -f ${GITHUB_WORKSPACE}/fyne-cross/dist/windows-${{ matrix.arch }}/chrome_updater.exe ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
             
-            # 🎯 删除了之前的 if 判断，因为现在只有 amd64，直接进行 upx 最高强度的压缩
+            # 直接进行 upx 压缩
             upx -9 ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
             
             zip -rj ${GITHUB_WORKSPACE}/dist/chrome_updater-windows-${{ matrix.arch }}.zip ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
