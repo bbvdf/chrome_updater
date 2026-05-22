@@ -2,6 +2,8 @@ name: Build Release
 on:
   release:
     types: [created]
+  workflow_dispatch: # 支持手动点击运行
+
 jobs:
   Build:
     runs-on: ${{ matrix.os }}
