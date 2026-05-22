@@ -2,7 +2,7 @@ name: Build Release
 on:
   release:
     types: [created]
-  workflow_dispatch: # 支持手动点击运行
+  workflow_dispatch: # 保留手动触发按钮
 
 jobs:
   Build:
@@ -12,7 +12,7 @@ jobs:
       matrix:
         go-version: ['stable']
         os: [ubuntu-latest]
-        arch: ['amd64', '386', 'arm64']
+        arch: ['amd64'] # 🎯 这里修改为只保留 amd64 (x64)
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,9 +45,10 @@ jobs:
             mkdir ${GITHUB_WORKSPACE}/dist
             unzip ${GITHUB_WORKSPACE}/fyne-cross/dist/windows-${{ matrix.arch }}/chrome_updater.exe.zip -d ${GITHUB_WORKSPACE}/fyne-cross/dist/windows-${{ matrix.arch }}
             mv -f ${GITHUB_WORKSPACE}/fyne-cross/dist/windows-${{ matrix.arch }}/chrome_updater.exe ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
-            if [ ${{ matrix.arch }} != 'arm64' ]; then
-               upx -9 ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
-            fi
+            
+            # 🎯 删除了之前的 if 判断，因为现在只有 amd64，直接进行 upx 最高强度的压缩
+            upx -9 ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
+            
             zip -rj ${GITHUB_WORKSPACE}/dist/chrome_updater-windows-${{ matrix.arch }}.zip ${GITHUB_WORKSPACE}/dist/chrome_updater.exe
       - name: Release
         uses: softprops/action-gh-release@v1
